@@ -3231,8 +3231,10 @@ async function main(){ // main asyncronous thread; mostly initializes the user s
 		session.statsMenu = urlParams.get('stats');
 		if (["false","0","no","off"].includes(session.statsMenu)) {
 			session.statsMenu = false;
-			const element = document.querySelector('li.context-menu__item > a[data-action="ShowStats"]').parentElement;
-			element.classList.add('hidden'); // hide the "Show Stats" option from the right-click menu
+			const elementStats = document.querySelector('li.context-menu__item > a[data-action="ShowStats"]').parentElement;
+			elementStats.classList.add('hidden'); // hide the "Show Stats" option from the right-click menu
+			const elementTip = document.querySelector('span.context-menu__tip[data-action="TipRightClick"]');
+			elementTip.classList.add('hidden'); // hide the "Tip" from the right-click menu
 		} else {
 			session.statsMenu = true;
 		}
