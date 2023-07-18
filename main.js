@@ -3228,7 +3228,14 @@ async function main(){ // main asyncronous thread; mostly initializes the user s
 	}
 
 	if (urlParams.has('stats')) {
-		session.statsMenu = true;
+		session.statsMenu = urlParams.get('stats');
+		if (["false","0","no","off"].includes(session.statsMenu)) {
+			session.statsMenu = false;
+			const element = document.querySelector('li.context-menu__item > a[data-action="ShowStats"]').parentElement;
+			element.classList.add('hidden'); // hide the "Show Stats" option from the right-click menu
+		} else {
+			session.statsMenu = true;
+		}
 	}
 	
 	if (urlParams.has('cleandirector') || urlParams.has('cdv')) {
