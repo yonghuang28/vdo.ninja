@@ -14899,6 +14899,36 @@ function toggleChat(event = null) {
     }
     updateMessages();
 }
+
+function toggleDirectFeedback(event = null) {
+    const unmuteSelf = document.getElementById('unmuteSelf');
+    unmuteSelf.classList.remove("hidden");
+	
+	if (session.videoElement){
+		session.videoElement.muted = session.videoElement.muted ? false : true;
+		
+		if (session.selfVolume){
+			session.selfVolume =  parseFloat(session.selfVolume);
+			if (session.selfVolume>=1){
+				session.videoElement.volume = Math.min(100,Math.max(1,session.selfVolume))/100;
+				session.selfVolume = null;
+			} else {
+				session.videoElement.volume = Math.min(1,Math.max(0,session.selfVolume));
+				session.selfVolume = null;
+			}
+		}
+	}
+	
+	if (session.videoElement.muted){
+		unmuteSelf.classList.remove("red", "pulsate");
+		unmuteSelf.ariaPressed = "false";
+		
+	} else {
+		unmuteSelf.classList.add("red", "pulsate");
+		unmuteSelf.ariaPressed = "true";
+	}
+}
+
 function setupAdjustableChat() {
     const chatModule = document.getElementById('chatModule');
     chatModule.configured = true;
@@ -23175,12 +23205,15 @@ function gotDevices(deviceInfos, miconly = false) {
 	log(deviceInfos);
 	
 	deviceInfos.sort((a, b) => {
+		// Put "default" devices first
+		if (a.deviceId.toLowerCase() === "default") return -1;
+		if (b.deviceId.toLowerCase() === "default") return 1;
+		
+		// Then sort by label if both exist
 		if (a.label && b.label) {
-			if (a.label.toLowerCase().startsWith("default")){
-				return -1
-			}
 			return a.label.localeCompare(b.label, undefined, {sensitivity: 'base'});
 		}
+		
 		return 0;
 	});
 	
@@ -33779,7 +33812,7 @@ function listCameraSettings() {
 
 	if (session.roomid && session.view !== "" && session.controlRoomBitrate !== false) {
 		log("LISTING OPTION FOR BITRATE CONTROL");
-		var i = "room video bitrate (kbps)";
+		var i = "Room Video Bitrate (kbps)";
 		var label = document.createElement("label");
 
 		label.htmlFor = "constraints_" + i;
@@ -33788,13 +33821,13 @@ function listCameraSettings() {
 
 		var input = document.createElement("input");
 		input.min = 0;
-		input.max = parseInt(session.totalRoomBitrate);
+		input.max = parseInt(session.totalRoomBitrate*1.5);
 
 		if (getById("popupSelector_constraints_video").style.display == "none") {
 			getById("advancedOptionsCamera").style.display = "inline-flex";
 		}
 
-		input.value = session.controlRoomBitrate;
+		input.value = parseInt(session.controlRoomBitrate);
 		label.innerHTML = i + ": ";
 
 		var manualInput = document.createElement("input");
@@ -36415,10 +36448,7 @@ async function PictureInPicturePageToggle(state = null) {
 			});
 
 			var pipWindowHead = '<title>Pop-out Window</title>';
-			pipWindowHead += '<link rel="stylesheet" href="./css/variables.css"/>';
-			pipWindowHead += '<link rel="stylesheet" href="./css/main.css"/>';
-			pipWindowHead += '<link rel="stylesheet" href="./css/icons.css"/>';
-			pipWindowHead += '<link rel="stylesheet" href="./css/animations.css"/>';
+			pipWindowHead += '<link rel="stylesheet" href="./main.css"/>';
 			
 			session.pipWindow.document.body.className = "main";
 			session.pipWindow.document.head.innerHTML = pipWindowHead;
@@ -36936,6 +36966,7 @@ function pauseVideo(videoEle, update = true) {
 	}
 
 	async function menuItemListener(link, inputElement = false, e = false) {
+		
 		if (link.getAttribute("data-action") === "Open") {
 			window.open(taskItemInContext.href);
 		} else if (link.getAttribute("data-action") === "Copy") {
@@ -37005,9 +37036,22 @@ function pauseVideo(videoEle, update = true) {
 		} else if (link.getAttribute("data-action") === "Cast") {
 			//copyFunction(taskItemInContext.href);
 		} else if (link.getAttribute("data-action") === "Controls") {
+			
+			//getById("main").classList.add("forcecontrols"); // adds an annoying shadow to the bar area
+			//taskItemInContext.showControlBar = true;
+			//checkVideoControlBar(taskItemInContext);
+			//taskItemInContext.controls = false;
+			//ele.focus();
+			taskItemInContext.removeAttribute("controls");
+			taskItemInContext.setAttribute("controls", "");
 			taskItemInContext.controls = true;
+			
 		} else if (link.getAttribute("data-action") === "HideControls") {
+			
+			//taskItemInContext.showControlBar = false;
 			taskItemInContext.controls = false;
+			taskItemInContext.removeAttribute("controls");
+			
 		} else if (link.getAttribute("data-action") === "Edit") {
 			//copyFunction(taskItemInContext.href);
 			var response = await promptAlt("Please note, manual edits to the URL may conflict with the toggles", false, false, taskItemInContext.href);
@@ -37103,9 +37147,7 @@ function pauseVideo(videoEle, update = true) {
 			win.focus();
 			win.resizeTo(1280, 720);
 		}
-			
 		
-
 		if (inputElement === false) {
 			log("Task ID - " + taskItemInContext + ", Task action - " + link.getAttribute("data-action"));
 			toggleMenuOff();
@@ -37115,7 +37157,7 @@ function pauseVideo(videoEle, update = true) {
 	function menuItemSyncState(menu) {
 		var items = menu.querySelectorAll("[data-action]");
 		for (var i = 0; i < items.length; i++) {
-			if (items[i].getAttribute("data-action") === "FullWindow") {
+			 if (items[i].getAttribute("data-action") === "FullWindow") {
 				if (taskItemInContext.id == "videosource" || taskItemInContext.id == "previewWebcam") {
 					if (session.infocus === true) {
 						items[i].parentNode.classList.add("hidden");
@@ -37248,7 +37290,24 @@ function pauseVideo(videoEle, update = true) {
 	}
 	contextListener();
 })();
+	
 
+function checkVideoControlBar(ele){ // this is aggressive. Lets not use it unless required.
+	if (ele){
+		if (ele.showControlBar){
+			if (ele.showControlBarInterval){
+				clearTimeout(ele.showControlBarInterval);
+			}
+			ele.focus();
+			ele.removeAttribute("controls");
+			ele.setAttribute("controls", "");
+			ele.focus();
+			ele.showControlBarInterval = setTimeout(function(ele){
+				checkVideoControlBar(ele);
+			}, 100, ele);
+		}
+	}
+}
 function gotDevices3(deviceInfos, vid) {
 	var audioEle = document.createElement("select");
 	log(deviceInfos);
