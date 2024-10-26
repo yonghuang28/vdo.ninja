@@ -152,6 +152,11 @@ async function main() {
 		session.effect = null; // so the director can see the effects after a page refresh
 		getById("avatarDiv3").classList.remove("hidden"); // lets the director see the avatar option
 	}
+	
+	if (urlParams.has("feedbackbutton") || urlParams.has("fb")) {
+		getById("unmuteSelf").classList.remove("hidden"); // lets the director see the avatar option
+		session.selfVolume = urlParams.get("fb") || null;
+	}
 
 	if (urlParams.has("controls") || urlParams.has("videocontrols")) {
 		session.showControls = true; // show the video control bar
@@ -408,7 +413,7 @@ async function main() {
 
 	if (urlParams.has("background") || urlParams.has("appbg")) {
 		// URL or data:base64 image.  Use &chroma if you want to use a color instead of image.
-		let background = urlParams.get("background") || urlParams.get("appbg") || false;
+		let background = urlParams.get("background") || urlParams.get("appbg") || "./media/logo_cropped.png";
 		if (background) {
 			try {
 				background = decodeURIComponent(background);
@@ -5780,6 +5785,13 @@ async function main() {
 			} else if (session.chatbutton === false) {
 				getById("chatbutton").classList.add("hidden");
 			}
+			
+			if (session.hangupbutton === true) {
+				getById("controlButtons").classList.remove("hidden");
+				getById("hangupbutton").classList.remove("hidden");
+				getById("hangupbutton").className = "float";
+			}
+			
 		} else if (session.permaid === null && session.roomid == "") {
 			if (!session.cleanOutput) {
 				//	getById("head3").classList.remove('hidden');
@@ -5865,6 +5877,12 @@ async function main() {
 			getById("controlButtons").classList.remove("hidden");
 		} else if (session.chatbutton === false) {
 			getById("chatbutton").classList.add("hidden");
+		}
+		
+		if (session.hangupbutton === true) {
+			getById("controlButtons").classList.remove("hidden");
+			getById("hangupbutton").classList.remove("hidden");
+			getById("hangupbutton").className = "float";
 		}
 	}
 

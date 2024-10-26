@@ -39,12 +39,7 @@
 		
 		<meta name="msapplication-TileColor" content="#da532c" />
 		<meta name="theme-color" content="#0f131d" />
-		
-		<link rel="stylesheet" href="./css/variables.css?ver=3" />
-		<!-- If a user is using an old custom main.css, their custom variables should override the defaults variables this way. i think. -->
-		<link rel="stylesheet" href="./css/main.css?ver=395" />
-		<link rel="stylesheet" href="./css/icons.css?ver=2" />
-		<link rel="stylesheet" href="./css/animations.css" />
+		<link rel="stylesheet" href="./main.css?ver=397" />
 		<script type="text/javascript" crossorigin="anonymous" src="./thirdparty/adapter.js"></script>
 		
 		<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
@@ -162,7 +157,9 @@
 		<div id="controlButtons" class="hidden">
 			<div class="controlPositioning">
                 <div id="subControlButtons">
-                
+					<div id="unmuteSelf" title="Hear yourself at 50% volume" alt="Hear yourself at 50% volume" aria-label="Hear Yourself" onmousedown="event.preventDefault(); event.stopPropagation();"  onclick="toggleDirectFeedback()"  tabindex="2" role="button" aria-pressed="false" onkeyup="enterPressedClick(event,this);"  class="hidden float" style="cursor: pointer;" >
+                        <i id="unmuteSelftoggle" class="toggleSize las la-podcast"></i>
+                    </div>
 					<div id="mediafileshare" onmousedown="event.preventDefault(); event.stopPropagation();"  title="Stream a media file" aria-label="Stream a media file" alt="Stream a media file to others" onclick="getById('fileselector2').click();" tabindex="2" role="button" aria-pressed="false" onkeyup="enterPressedClick(event,this);"  class="float hidden" style="cursor: pointer;">
                         <i id="mediafilesharetoggle" onmousedown="event.preventDefault(); event.stopPropagation();"  class="toggleSize las la-file-video"></i>
 						<input id="fileselector2" class="hidden" onchange="session.changePublishFile(this,event);" type="file" accept="video/*,audio/*" alt="Hold CTRL (or CMD) to select multiple files" title="Hold CTRL (or CMD) to select multiple files" multiple/>
@@ -2227,7 +2224,7 @@
 				<li class="context-menu__item">
 					<a href="#" class="context-menu__link" data-action="Mirror">
 						<i class="las la-external-link"></i>
-						<span data-translate="mirror-video">Mirror</span>
+						<span data-translate="mirror-video">Mirror Video</span>
 					</a>
 				</li>
 				<li class="context-menu__item">
@@ -2759,7 +2756,7 @@
 			// if (!window.location.search){document.body.innerHTML = "";} // uncomment this line, if you wish to try it.
 			
 			var session = WebRTC.Media; // session is a required global variable if configuring manually. Run before loading main.js but after webrtc.js.
-			session.version = "26.1";
+			session.version = "26.2";
 			session.streamID = session.generateStreamID(); // randomly generates a streamID for this session. You can set your own programmatically if needed
 			
 			session.defaultPassword = "someEncryptionKey123"; // Change this password if self-deploying for added security/privacy
@@ -2882,7 +2879,7 @@
 			// if ("42" != prompt("enter the password")){document.body.innerHTML = "";window.location.href = "";} // if you want a low-effort password for the site
 			
 		</script>
-		<script type="text/javascript" crossorigin="anonymous" id="lib-js" src="./lib.js?ver=1265"></script>
-		<script type="text/javascript" crossorigin="anonymous" id="main-js" src="./main.js?ver=941"></script>
+		<script type="text/javascript" crossorigin="anonymous" id="lib-js" src="./lib.js?ver=1289"></script>
+		<script type="text/javascript" crossorigin="anonymous" id="main-js" src="./main.js?ver=948"></script>
 	</body>
 </html>
